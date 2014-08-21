@@ -3,6 +3,7 @@ package com.github.sleepycat.cdb;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
@@ -22,14 +23,18 @@ public class CdbMakerTest {
         try (CdbMaker writer = new CdbMaker(FILE_NAME)) {
             writer.put(key, value);
         }
+        // Check if header was written correctly
+        Assert.assertTrue(Files.size(Paths.get(FILE_NAME)) > CdbConst.HEADER_BYTES_SIZE);
     }
 
     @Test
     public void testMassivePut() throws Exception {
         try (CdbMaker writer = new CdbMaker(FILE_NAME)) {
-            for (int n = 0; n < 100_000; n++) {
+            for (int n = 0; n < 1000; n++) {
                 writer.put(TestUtils.randomBytes(2048), TestUtils.randomBytes(4 * 2048));
             }
         }
+        // Check if header was written correctly
+        Assert.assertTrue(Files.size(Paths.get(FILE_NAME)) > CdbConst.HEADER_BYTES_SIZE);
     }
 }

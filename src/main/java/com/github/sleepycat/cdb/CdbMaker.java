@@ -8,8 +8,6 @@ import com.github.sleepycat.cdb.exception.CdbIOError;
 
 public class CdbMaker implements AutoCloseable {
 
-    private static final int HEADER_BYTES_SIZE = HeaderEntry.BYTES_SIZE * CdbConst.HEADER_ENTRY_COUNT;
-
     private CdbFile file;
 
     private List<List<DatumDescriptor>> datumDescriptorsList;
@@ -17,7 +15,7 @@ public class CdbMaker implements AutoCloseable {
 
     public CdbMaker(String fileName) throws CdbIOError {
         try {
-            endOfDataOffset = HEADER_BYTES_SIZE;
+            endOfDataOffset = CdbConst.HEADER_BYTES_SIZE;
             file = new CdbFile(fileName, CdbFileMode.Write);
             file.seek(endOfDataOffset);
             datumDescriptorsList = new ArrayList<>(CdbConst.HEADER_ENTRY_COUNT);

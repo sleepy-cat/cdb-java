@@ -36,7 +36,7 @@ public class CdbTest {
         Map<byte[], byte[]> map = new HashMap<>(100_000);
 
         try (CdbMaker maker = new CdbMaker(FILE_NAME)) {
-            for (int n = 0; n < 100_000; n++) {
+            for (int n = 0; n < 1000; n++) {
                 byte[] key = TestUtils.randomBytes(2048);
                 byte[] value = TestUtils.randomBytes(4 * 2048);
                 map.put(key, value);
