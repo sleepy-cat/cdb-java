@@ -14,4 +14,8 @@ public class CdbHash {
         }
         return result;
     }
+
+    public static int modulo(int dividend, int divisor) {
+        return Integer.remainderUnsigned(dividend, divisor);
+    }
 }

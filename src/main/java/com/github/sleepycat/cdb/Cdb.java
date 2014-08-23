@@ -23,7 +23,7 @@ public class Cdb implements AutoCloseable {
     public byte[] get(byte[] key) throws CdbError {
         try {
             int keyHash = CdbHash.calculate(key);
-            file.seek(Integer.remainderUnsigned(keyHash, CdbConst.HEADER_ENTRY_COUNT) * HeaderEntry.BYTES_SIZE);
+            file.seek(CdbHash.modulo(keyHash, CdbConst.HEADER_ENTRY_COUNT) * HeaderEntry.BYTES_SIZE);
             HeaderEntry headerEntry = file.readHeaderEntry();
             if (headerEntry.getSlotsCount() == 0) {
                 throw new CdbNotFoundError(key);

@@ -80,7 +80,7 @@ public class CdbMaker implements AutoCloseable {
     public void put(byte[] key, byte[] value) throws CdbIOError {
         try {
             int keyHash = CdbHash.calculate(key);
-            datumDescriptorsList.get(Integer.remainderUnsigned(keyHash, CdbConst.HEADER_ENTRY_COUNT)).add(
+            datumDescriptorsList.get(CdbHash.modulo(keyHash, CdbConst.HEADER_ENTRY_COUNT)).add(
                     new DatumDescriptor(keyHash, endOfDataOffset));
             Datum datum = new Datum(key, value);
 
