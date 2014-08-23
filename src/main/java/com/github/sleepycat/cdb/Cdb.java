@@ -9,10 +9,12 @@ import com.github.sleepycat.cdb.exception.CdbNotFoundError;
 
 public class Cdb implements AutoCloseable {
 
-    private CdbFile file;
+    private final CdbFile file;
+    private final Header header;
 
     public Cdb(String fileName) throws IOException {
         file = new CdbFile(fileName, CdbFileMode.Read);
+        header = file.readHeader();
     }
 
     @Override
@@ -23,8 +25,7 @@ public class Cdb implements AutoCloseable {
     public byte[] get(byte[] key) throws CdbError {
         try {
             int keyHash = CdbHash.calculate(key);
-            file.seek(CdbHash.modulo(keyHash, CdbConst.HEADER_ENTRY_COUNT) * HeaderEntry.BYTES_SIZE);
-            HeaderEntry headerEntry = file.readHeaderEntry();
+            HeaderEntry headerEntry = header.get(CdbHash.modulo(keyHash, Header.ENTRY_COUNT));
             if (headerEntry.getSlotsCount() == 0) {
                 throw new CdbNotFoundError(key);
             }

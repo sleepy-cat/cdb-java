@@ -24,7 +24,7 @@ public class CdbMakerTest {
             writer.put(key, value);
         }
         // Check if header was written correctly
-        Assert.assertTrue(Files.size(Paths.get(FILE_NAME)) > CdbConst.HEADER_BYTES_SIZE);
+        Assert.assertTrue(Files.size(Paths.get(FILE_NAME)) > Header.BYTES_SIZE);
     }
 
     @Test
@@ -35,6 +35,6 @@ public class CdbMakerTest {
             }
         }
         // Check if header was written correctly
-        Assert.assertTrue(Files.size(Paths.get(FILE_NAME)) > CdbConst.HEADER_BYTES_SIZE);
+        Assert.assertTrue(Files.size(Paths.get(FILE_NAME)) > Header.BYTES_SIZE);
     }
 }

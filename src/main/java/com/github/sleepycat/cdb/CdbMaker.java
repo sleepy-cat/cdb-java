@@ -15,11 +15,11 @@ public class CdbMaker implements AutoCloseable {
 
     public CdbMaker(String fileName) throws CdbIOError {
         try {
-            endOfDataOffset = CdbConst.HEADER_BYTES_SIZE;
+            endOfDataOffset = Header.BYTES_SIZE;
             file = new CdbFile(fileName, CdbFileMode.Write);
             file.seek(endOfDataOffset);
-            datumDescriptorsList = new ArrayList<>(CdbConst.HEADER_ENTRY_COUNT);
-            for (int i = 0; i < CdbConst.HEADER_ENTRY_COUNT; i++) {
+            datumDescriptorsList = new ArrayList<>(Header.ENTRY_COUNT);
+            for (int i = 0; i < Header.ENTRY_COUNT; i++) {
                 datumDescriptorsList.add(new ArrayList<>());
             }
         } catch (IOException e) {
@@ -42,11 +42,13 @@ public class CdbMaker implements AutoCloseable {
         try {
             file.seek(0);
             int slotsOffset = endOfDataOffset;
+            List<HeaderEntry> entries = new ArrayList<>(Header.ENTRY_COUNT);
             for (List<DatumDescriptor> datumDescriptors : datumDescriptorsList) {
-                HeaderEntry he = new HeaderEntry(slotsOffset, slotCountOf(datumDescriptors));
-                file.writeHeaderEntry(he);
-                slotsOffset += he.getSlotsCount() * Slot.BYTES_SIZE;
+                HeaderEntry entry = new HeaderEntry(slotsOffset, slotCountOf(datumDescriptors));
+                entries.add(entry);
+                slotsOffset += entry.getSlotsCount() * Slot.BYTES_SIZE;
             }
+            file.writeHeader(new Header(entries));
         } catch (IOException e) {
             throw new CdbIOError(e);
         }
@@ -80,7 +82,7 @@ public class CdbMaker implements AutoCloseable {
     public void put(byte[] key, byte[] value) throws CdbIOError {
         try {
             int keyHash = CdbHash.calculate(key);
-            datumDescriptorsList.get(CdbHash.modulo(keyHash, CdbConst.HEADER_ENTRY_COUNT)).add(
+            datumDescriptorsList.get(CdbHash.modulo(keyHash, Header.ENTRY_COUNT)).add(
                     new DatumDescriptor(keyHash, endOfDataOffset));
             Datum datum = new Datum(key, value);
 

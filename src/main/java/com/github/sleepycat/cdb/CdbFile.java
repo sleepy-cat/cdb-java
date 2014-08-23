@@ -3,6 +3,8 @@ package com.github.sleepycat.cdb;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CdbFile {
 
@@ -14,6 +16,22 @@ public class CdbFile {
 
     public void close() throws IOException {
         raf.close();
+    }
+
+    public Header readHeader() throws IOException {
+        List<HeaderEntry> entries = new ArrayList<>(Header.ENTRY_COUNT);
+        for (int i = 0; i < Header.ENTRY_COUNT; i++) {
+            entries.add(readHeaderEntry());
+        }
+        return new Header(entries);
+    }
+
+    public int writeHeader(Header value) throws IOException {
+        int result = 0;
+        for (HeaderEntry entry : value) {
+            result += writeHeaderEntry(entry);
+        }
+        return result;
     }
 
     public Datum readDatum() throws IOException {
