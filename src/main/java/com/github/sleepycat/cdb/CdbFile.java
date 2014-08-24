@@ -18,6 +18,14 @@ public class CdbFile {
         raf.close();
     }
 
+    public void seek(long pos) throws IOException {
+        raf.seek(pos);
+    }
+
+    public long size() throws IOException {
+        return raf.length();
+    }
+
     public Header readHeader() throws IOException {
         List<HeaderEntry> entries = new ArrayList<>(Header.ENTRY_COUNT);
         for (int i = 0; i < Header.ENTRY_COUNT; i++) {
@@ -69,10 +77,6 @@ public class CdbFile {
         result += writeInt(value.getSlotsOffset());
         result += writeInt(value.getSlotsCount());
         return result;
-    }
-
-    public void seek(long pos) throws IOException {
-        raf.seek(pos);
     }
 
     private int readInt() throws IOException {
