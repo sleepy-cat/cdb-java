@@ -15,7 +15,7 @@ public class Cdb implements AutoCloseable {
     public Cdb(String fileName) throws IOException {
         file = new CdbFile(fileName, CdbFileMode.Read);
         if (file.size() < Header.BYTES_SIZE) {
-            throw new IOException("Unexpected end of file");
+            throw new IOException("Unexpected end of CDB file. It least " + Header.BYTES_SIZE + " bytes expected.");
         }
         header = file.readHeader();
     }
