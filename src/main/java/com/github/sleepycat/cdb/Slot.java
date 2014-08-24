@@ -33,7 +33,6 @@ public class Slot {
 
         Slot slot = (Slot) o;
         return hash == slot.hash && datumOffset == slot.datumOffset;
-
     }
 
     @Override
