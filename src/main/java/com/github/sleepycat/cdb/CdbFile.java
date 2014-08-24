@@ -68,11 +68,11 @@ public class CdbFile {
         return result;
     }
 
-    public HeaderEntry readHeaderEntry() throws IOException {
+    private HeaderEntry readHeaderEntry() throws IOException {
         return new HeaderEntry(readInt(), readInt());
     }
 
-    public int writeHeaderEntry(HeaderEntry value) throws IOException {
+    private int writeHeaderEntry(HeaderEntry value) throws IOException {
         int result = 0;
         result += writeInt(value.getSlotsOffset());
         result += writeInt(value.getSlotsCount());

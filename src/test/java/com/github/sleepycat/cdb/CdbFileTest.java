@@ -2,6 +2,8 @@ package com.github.sleepycat.cdb;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
@@ -44,12 +46,22 @@ public class CdbFileTest {
     }
 
     @Test
-    public void testReadWriteHeaderEntry() throws Exception {
-        HeaderEntry headerEntry = new HeaderEntry(0xAACCBBDD, 0xFFEECCDD);
-        file.writeHeaderEntry(headerEntry);
+    public void testReadWriteHeader() throws Exception {
+        List<HeaderEntry> entries = new ArrayList<>(Header.ENTRY_COUNT);
+        for (int i = 0; i < Header.ENTRY_COUNT; i++) {
+            entries.add(new HeaderEntry(i, i));
+        }
+        Header header = new Header(entries);
+        file.writeHeader(header);
+
         file.seek(0);
-        HeaderEntry readerHeaderEntry = file.readHeaderEntry();
-        Assert.assertEquals(readerHeaderEntry, headerEntry);
+        Header readedHeader = file.readHeader();
+        int i = 0;
+        for (HeaderEntry he : readedHeader) {
+            Assert.assertEquals(he.getSlotsCount(), i);
+            Assert.assertEquals(he.getSlotsOffset(), i);
+            i++;
+        }
     }
 
     private byte[] newByteArray(int len) {
