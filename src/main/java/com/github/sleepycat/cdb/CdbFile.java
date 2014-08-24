@@ -8,7 +8,7 @@ import java.util.List;
 
 public class CdbFile {
 
-    private RandomAccessFile raf;
+    private final RandomAccessFile raf;
 
     public CdbFile(String fileName, CdbFileMode mode) throws FileNotFoundException {
         raf = new RandomAccessFile(fileName, mode == CdbFileMode.Write ? "rw" : "r");
