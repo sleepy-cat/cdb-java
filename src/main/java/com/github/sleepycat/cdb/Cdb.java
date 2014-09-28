@@ -47,4 +47,33 @@ public class Cdb implements AutoCloseable {
 
         return Optional.empty();
     }
+
+    public Optional<byte[]> getNextKey(KeyCursor cursor) throws IOException {
+        while (true) {
+            if (cursor.getHeaderEntryIndex() >= header.size()) {
+                break;
+            }
+
+            HeaderEntry he = header.get(cursor.getHeaderEntryIndex());
+            if (cursor.getHeaderEntrySlotIndex() >= he.getSlotsCount()) {
+                cursor.setHeaderEntryIndex(cursor.getHeaderEntryIndex() + 1);
+                cursor.setHeaderEntrySlotIndex(0);
+                continue;
+            }
+
+            file.seek(he.getSlotsOffset() + cursor.getHeaderEntrySlotIndex() * Slot.BYTES_SIZE);
+            cursor.setHeaderEntrySlotIndex(cursor.getHeaderEntrySlotIndex() + 1);
+
+            Slot slot = file.readSlot();
+            if (Slot.EMPTY_SLOT.equals(slot)) {
+                continue;
+            }
+
+            file.seek(slot.getDatumOffset());
+            Datum datum = file.readDatum();
+            return Optional.of(datum.getKey());
+        }
+
+        return Optional.empty();
+    }
 }

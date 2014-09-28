@@ -22,6 +22,10 @@ public class Header implements Iterable<HeaderEntry> {
         return entries.get(index);
     }
 
+    public int size() {
+        return entries.size();
+    }
+
     @Override
     public Iterator<HeaderEntry> iterator() {
         return entries.iterator();

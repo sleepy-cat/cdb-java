@@ -3,6 +3,7 @@ package com.github.sleepycat.cdb;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -36,10 +37,10 @@ public class CdbTest {
 
     @Test
     public void testMassiveGet() throws Exception {
-        Map<byte[], byte[]> map = massiveSeed();
+        Map<ByteArrayWrapper, byte[]> map = massiveSeed();
         try (Cdb cdb = new Cdb(FILE_NAME)) {
-            for (Map.Entry<byte[], byte[]> entry : map.entrySet()) {
-                Optional<byte[]> v = cdb.get(entry.getKey());
+            for (Map.Entry<ByteArrayWrapper, byte[]> entry : map.entrySet()) {
+                Optional<byte[]> v = cdb.get(entry.getKey().get());
                 Assert.assertTrue(v.isPresent());
                 Assert.assertEquals(v.get(), entry.getValue());
             }
@@ -48,7 +49,7 @@ public class CdbTest {
 
     @Test
     public void testGetAbsent() throws Exception {
-        Map<byte[], byte[]> map = massiveSeed();
+        Map<ByteArrayWrapper, byte[]> map = massiveSeed();
         try (Cdb cdb = new Cdb(FILE_NAME)) {
             byte[] key = TestUtils.randomBytes(512);
             Optional<byte[]> v = cdb.get(key);
@@ -57,16 +58,63 @@ public class CdbTest {
         }
     }
 
-    private Map<byte[], byte[]> massiveSeed() throws IOException {
-        Map<byte[], byte[]> result = new HashMap<>(100_000);
+    @Test
+    public void testGetNextKey() throws Exception {
+        Map<ByteArrayWrapper, byte[]> map = massiveSeed();
+        int keyCount = 0;
+        try (Cdb cdb = new Cdb(FILE_NAME)) {
+            KeyCursor cursor = new KeyCursor();
+            Optional<byte[]> optionalKey;
+            while ((optionalKey = cdb.getNextKey(cursor)).isPresent()) {
+                byte[] b = optionalKey.get();
+                Assert.assertTrue(map.containsKey(new ByteArrayWrapper(b)));
+                keyCount++;
+            }
+        }
+        Assert.assertEquals(keyCount, map.size());
+    }
+
+    private Map<ByteArrayWrapper, byte[]> massiveSeed() throws IOException {
+        Map<ByteArrayWrapper, byte[]> result = new HashMap<>(100_000);
         try (CdbMaker maker = new CdbMaker(FILE_NAME)) {
             for (int n = 0; n < 1000; n++) {
                 byte[] key = TestUtils.randomBytes(2048);
                 byte[] value = TestUtils.randomBytes(4 * 2048);
-                result.put(key, value);
+                result.put(new ByteArrayWrapper(key), value);
                 maker.put(key, value);
             }
         }
         return result;
+    }
+
+    private static final class ByteArrayWrapper {
+
+        private final byte[] array;
+
+        private ByteArrayWrapper(byte[] array) {
+            this.array = array;
+        }
+
+        public byte[] get() {
+            return array;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            ByteArrayWrapper wrapper = (ByteArrayWrapper) o;
+            return Arrays.equals(array, wrapper.array);
+        }
+
+        @Override
+        public int hashCode() {
+            return array != null ? Arrays.hashCode(array) : 0;
+        }
     }
 }
